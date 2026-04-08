@@ -2,7 +2,7 @@
  * Unit tests for CronService, SearchService, and Scheduled Tasks API
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
+import { describe, it, expect, beforeEach, afterEach, spyOn } from 'bun:test'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as os from 'os'
@@ -138,6 +138,41 @@ describe('CronService', () => {
     await expect(
       service.createTask({ cron: '* * * * *', prompt: '' }),
     ).rejects.toThrow()
+  })
+
+  it('should retry the atomic write when rename returns ENOENT', async () => {
+    const originalRename = fs.rename
+    let renameCalls = 0
+
+    const renameSpy = spyOn(fs, 'rename')
+    renameSpy.mockImplementation(async (...args) => {
+      renameCalls += 1
+
+      if (renameCalls === 1) {
+        const error = new Error(
+          'ENOENT: no such file or directory, rename tmp -> scheduled_tasks.json',
+        ) as NodeJS.ErrnoException
+        error.code = 'ENOENT'
+        throw error
+      }
+
+      return originalRename(...args)
+    })
+
+    try {
+      const task = await service.createTask({
+        cron: '0 9 * * *',
+        prompt: 'Retry rename once',
+      })
+
+      const tasks = await service.listTasks()
+      expect(task.id).toBeDefined()
+      expect(tasks).toHaveLength(1)
+      expect(tasks[0]?.prompt).toBe('Retry rename once')
+      expect(renameCalls).toBe(2)
+    } finally {
+      renameSpy.mockRestore()
+    }
   })
 })
 

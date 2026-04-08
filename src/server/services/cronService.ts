@@ -32,6 +32,8 @@ type TasksFile = {
   tasks: CronTask[]
 }
 
+const TASKS_FILE_WRITE_ATTEMPTS = 2
+
 export class CronService {
   /** 任务文件路径 */
   private getTasksFilePath(): string {
@@ -134,21 +136,32 @@ export class CronService {
   private async writeTasksFile(data: TasksFile): Promise<void> {
     const filePath = this.getTasksFilePath()
     const dir = path.dirname(filePath)
-    await fs.mkdir(dir, { recursive: true })
+    const contents = JSON.stringify(data, null, 2) + '\n'
+    let lastError: Error | undefined
 
-    const tmpFile = `${filePath}.tmp.${Date.now()}`
-    try {
-      await fs.writeFile(
-        tmpFile,
-        JSON.stringify(data, null, 2) + '\n',
-        'utf-8',
-      )
-      await fs.rename(tmpFile, filePath)
-    } catch (err) {
-      await fs.unlink(tmpFile).catch(() => {})
-      throw ApiError.internal(
-        `Failed to write scheduled tasks: ${(err as Error).message}`,
-      )
+    for (let attempt = 0; attempt < TASKS_FILE_WRITE_ATTEMPTS; attempt++) {
+      const tmpFile = `${filePath}.tmp.${process.pid}.${Date.now()}.${crypto.randomBytes(6).toString('hex')}`
+
+      try {
+        await fs.mkdir(dir, { recursive: true })
+        await fs.writeFile(tmpFile, contents, 'utf-8')
+        await fs.rename(tmpFile, filePath)
+        return
+      } catch (err) {
+        lastError = err as Error
+        await fs.unlink(tmpFile).catch(() => {})
+
+        if (
+          (err as NodeJS.ErrnoException).code !== 'ENOENT' ||
+          attempt === TASKS_FILE_WRITE_ATTEMPTS - 1
+        ) {
+          break
+        }
+      }
     }
+
+    throw ApiError.internal(
+      `Failed to write scheduled tasks: ${lastError?.message ?? 'unknown error'}`,
+    )
   }
 }
