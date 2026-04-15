@@ -64,21 +64,21 @@ describe('SettingsService', () => {
 
   it('should write and read user settings', async () => {
     const svc = new SettingsService()
-    await svc.updateUserSettings({ theme: 'dark', model: 'claude-opus-4-6-20250610' })
+    await svc.updateUserSettings({ theme: 'dark', model: 'claude-opus-4-6' })
 
     const settings = await svc.getUserSettings()
     expect(settings.theme).toBe('dark')
-    expect(settings.model).toBe('claude-opus-4-6-20250610')
+    expect(settings.model).toBe('claude-opus-4-6')
   })
 
   it('should merge settings on update (shallow merge)', async () => {
     const svc = new SettingsService()
     await svc.updateUserSettings({ theme: 'dark' })
-    await svc.updateUserSettings({ model: 'claude-haiku-4-5-20251001' })
+    await svc.updateUserSettings({ model: 'claude-haiku-4-5' })
 
     const settings = await svc.getUserSettings()
     expect(settings.theme).toBe('dark')
-    expect(settings.model).toBe('claude-haiku-4-5-20251001')
+    expect(settings.model).toBe('claude-haiku-4-5')
   })
 
   it('should read and write project settings', async () => {
@@ -97,14 +97,14 @@ describe('SettingsService', () => {
     await fs.mkdir(path.join(projectRoot, '.claude'), { recursive: true })
 
     const svc = new SettingsService(projectRoot)
-    await svc.updateUserSettings({ theme: 'dark', model: 'claude-opus-4-6-20250610' })
+    await svc.updateUserSettings({ theme: 'dark', model: 'claude-opus-4-6' })
     await svc.updateProjectSettings({ theme: 'light' })
 
     const merged = await svc.getSettings()
     // project overrides user
     expect(merged.theme).toBe('light')
     // user value preserved when not overridden
-    expect(merged.model).toBe('claude-opus-4-6-20250610')
+    expect(merged.model).toBe('claude-opus-4-6')
   })
 
   it('should get default permission mode', async () => {
@@ -168,7 +168,7 @@ describe('Settings API', () => {
 
   it('PUT /api/settings/user should update user settings', async () => {
     const { req, url, segments } = makeRequest('PUT', '/api/settings/user', {
-      model: 'claude-opus-4-6-20250610',
+      model: 'claude-opus-4-6',
     })
     const res = await handleSettingsApi(req, url, segments)
 
@@ -180,7 +180,7 @@ describe('Settings API', () => {
     const { req: r2, url: u2, segments: s2 } = makeRequest('GET', '/api/settings/user')
     const res2 = await handleSettingsApi(r2, u2, s2)
     const body2 = await res2.json()
-    expect(body2.model).toBe('claude-opus-4-6-20250610')
+    expect(body2.model).toBe('claude-opus-4-6')
   })
 
   it('GET /api/permissions/mode should return default mode', async () => {
@@ -245,25 +245,25 @@ describe('Models API', () => {
 
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.model.id).toBe('claude-sonnet-4-6-20250514')
+    expect(body.model.id).toBe('claude-sonnet-4-6')
   })
 
   it('PUT /api/models/current should switch model', async () => {
     const { req, url, segments } = makeRequest('PUT', '/api/models/current', {
-      modelId: 'claude-opus-4-6-20250610',
+      modelId: 'claude-opus-4-6',
     })
     const res = await handleModelsApi(req, url, segments)
 
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.ok).toBe(true)
-    expect(body.model).toBe('claude-opus-4-6-20250610')
+    expect(body.model).toBe('claude-opus-4-6')
 
     // Verify persisted
     const { req: r2, url: u2, segments: s2 } = makeRequest('GET', '/api/models/current')
     const res2 = await handleModelsApi(r2, u2, s2)
     const body2 = await res2.json()
-    expect(body2.model.id).toBe('claude-opus-4-6-20250610')
+    expect(body2.model.id).toBe('claude-opus-4-6')
   })
 
   it('PUT /api/models/current should reject missing modelId', async () => {

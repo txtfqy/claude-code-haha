@@ -133,11 +133,11 @@ describe('E2E: Full Flow', () => {
   })
 
   it('should update and read user settings', async () => {
-    await api('PUT', '/api/settings/user', { theme: 'dark', model: 'claude-sonnet-4-6-20250514' })
+    await api('PUT', '/api/settings/user', { theme: 'dark', model: 'claude-sonnet-4-6' })
 
     const { data } = await api('GET', '/api/settings/user')
     expect(data.theme).toBe('dark')
-    expect(data.model).toBe('claude-sonnet-4-6-20250514')
+    expect(data.model).toBe('claude-sonnet-4-6')
   })
 
   it('should get and set permission mode', async () => {
@@ -163,10 +163,10 @@ describe('E2E: Full Flow', () => {
   })
 
   it('should switch model', async () => {
-    await api('PUT', '/api/models/current', { modelId: 'claude-haiku-4-5-20251001' })
+    await api('PUT', '/api/models/current', { modelId: 'claude-haiku-4-5' })
 
     const { data } = await api('GET', '/api/models/current')
-    expect(data.model.id).toBe('claude-haiku-4-5-20251001')
+    expect(data.model.id).toBe('claude-haiku-4-5')
   })
 
   it('should get and set effort level', async () => {
@@ -256,7 +256,7 @@ describe('E2E: Full Flow', () => {
     const { status } = await api('POST', '/api/agents', {
       name: 'test-agent',
       description: 'A test agent',
-      model: 'claude-sonnet-4-6-20250514',
+      model: 'claude-sonnet-4-6',
     })
     expect(status).toBe(201)
   })

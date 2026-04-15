@@ -63,7 +63,7 @@ describe('Business Flow: Scheduled Tasks', () => {
       prompt: 'Look at git log from yesterday, summarize changes, list blockers',
       recurring: true,
       permissionMode: 'default',
-      model: 'claude-sonnet-4-6-20250514',
+      model: 'claude-sonnet-4-6',
       folderPath: '/Users/dev/project',
       useWorktree: true,
     })
@@ -75,7 +75,7 @@ describe('Business Flow: Scheduled Tasks', () => {
     expect(data.task.prompt).toContain('git log')
     expect(data.task.recurring).toBe(true)
     expect(data.task.permissionMode).toBe('default')
-    expect(data.task.model).toBe('claude-sonnet-4-6-20250514')
+    expect(data.task.model).toBe('claude-sonnet-4-6')
     expect(data.task.createdAt).toBeGreaterThan(0)
   })
 
@@ -223,7 +223,7 @@ describe('Business Flow: Agent Management', () => {
     const { status, data } = await api('POST', '/api/agents', {
       name: 'security-auditor',
       description: 'Audits code for security vulnerabilities',
-      model: 'claude-opus-4-6-20250610',
+      model: 'claude-opus-4-6',
       tools: ['Read', 'Grep', 'Glob', 'Bash'],
       systemPrompt: 'You are a security expert. Focus on OWASP top 10.',
       color: 'red',
@@ -235,7 +235,7 @@ describe('Business Flow: Agent Management', () => {
     const { status } = await api('POST', '/api/agents', {
       name: 'test-writer',
       description: 'Writes unit tests',
-      model: 'claude-sonnet-4-6-20250514',
+      model: 'claude-sonnet-4-6',
       tools: ['Read', 'Write', 'Bash'],
     })
     expect(status).toBe(201)
@@ -258,7 +258,7 @@ describe('Business Flow: Agent Management', () => {
     const { data } = await api('GET', '/api/agents/security-auditor')
     expect(data.agent.name).toBe('security-auditor')
     expect(data.agent.description).toContain('security')
-    expect(data.agent.model).toBe('claude-opus-4-6-20250610')
+    expect(data.agent.model).toBe('claude-opus-4-6')
     expect(data.agent.systemPrompt).toContain('OWASP')
   })
 
@@ -331,22 +331,22 @@ describe('Business Flow: Models & Effort', () => {
 
   it('should default to Sonnet model', async () => {
     const { data } = await api('GET', '/api/models/current')
-    expect(data.model.id).toBe('claude-sonnet-4-6-20250514')
+    expect(data.model.id).toBe('claude-sonnet-4-6')
   })
 
   it('should switch to Opus 4.6', async () => {
     const { status } = await api('PUT', '/api/models/current', {
-      modelId: 'claude-opus-4-6-20250610',
+      modelId: 'claude-opus-4-6',
     })
     expect(status).toBe(200)
 
     const { data } = await api('GET', '/api/models/current')
-    expect(data.model.id).toBe('claude-opus-4-6-20250610')
+    expect(data.model.id).toBe('claude-opus-4-6')
     expect(data.model.name).toBe('Opus 4.6')
   })
 
   it('should switch to Haiku 4.5', async () => {
-    await api('PUT', '/api/models/current', { modelId: 'claude-haiku-4-5-20251001' })
+    await api('PUT', '/api/models/current', { modelId: 'claude-haiku-4-5' })
     const { data } = await api('GET', '/api/models/current')
     expect(data.model.name).toBe('Haiku 4.5')
   })
@@ -389,13 +389,13 @@ describe('Business Flow: Models & Effort', () => {
   })
 
   it('should persist model and effort to settings file', async () => {
-    await api('PUT', '/api/models/current', { modelId: 'claude-opus-4-6-20250610' })
+    await api('PUT', '/api/models/current', { modelId: 'claude-opus-4-6' })
     await api('PUT', '/api/effort', { level: 'high' })
 
     const settingsPath = path.join(tmpDir, 'settings.json')
     const raw = await fs.readFile(settingsPath, 'utf-8')
     const settings = JSON.parse(raw)
-    expect(settings.model).toBe('claude-opus-4-6-20250610')
+    expect(settings.model).toBe('claude-opus-4-6')
     expect(settings.effort).toBe('high')
   })
 })
@@ -716,7 +716,7 @@ describe('Business Flow: Settings Persistence', () => {
   it('should write and read complex settings', async () => {
     const settings = {
       theme: 'dark',
-      model: 'claude-opus-4-6-20250610',
+      model: 'claude-opus-4-6',
       effort: 'high',
       outputStyle: 'verbose',
       permissions: {
@@ -729,7 +729,7 @@ describe('Business Flow: Settings Persistence', () => {
     const { data } = await api('GET', '/api/settings/user')
 
     expect(data.theme).toBe('dark')
-    expect(data.model).toBe('claude-opus-4-6-20250610')
+    expect(data.model).toBe('claude-opus-4-6')
     expect(data.permissions.allow).toContain('Read')
     expect(data.permissions.deny).toContain('Bash(rm -rf /)')
   })
@@ -758,7 +758,7 @@ describe('Business Flow: Settings Persistence', () => {
   })
 
   it('should merge user and project settings', async () => {
-    await api('PUT', '/api/settings/user', { theme: 'light', model: 'claude-sonnet-4-6-20250514' })
+    await api('PUT', '/api/settings/user', { theme: 'light', model: 'claude-sonnet-4-6' })
 
     const { data } = await api('GET', '/api/settings')
     expect(data.theme).toBeDefined()

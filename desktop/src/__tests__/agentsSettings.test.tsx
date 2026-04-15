@@ -57,8 +57,8 @@ const MOCK_AGENTS = [
   {
     agentType: 'doc-writer',
     description: 'Writes technical documentation',
-    model: 'claude-haiku-4-5-20251001',
-    modelDisplay: 'claude-haiku-4-5-20251001',
+    model: 'claude-haiku-4-5',
+    modelDisplay: 'claude-haiku-4-5',
     tools: ['Read'],
     systemPrompt: 'You write clear and concise docs.',
     color: 'green',

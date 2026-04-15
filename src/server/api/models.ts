@@ -16,25 +16,19 @@ import { ApiError, errorResponse } from '../middleware/errorHandler.js'
 
 const DEFAULT_MODELS = [
   {
-    id: 'claude-opus-4-6-20250610',
+    id: 'claude-opus-4-6',
     name: 'Opus 4.6',
-    description: 'Most capable for ambitious work',
-    context: '200k',
-  },
-  {
-    id: 'claude-opus-4-6-20250610:1m',
-    name: 'Opus 4.6 1M',
     description: 'Most capable for ambitious work',
     context: '1m',
   },
   {
-    id: 'claude-sonnet-4-6-20250514',
+    id: 'claude-sonnet-4-6',
     name: 'Sonnet 4.6',
     description: 'Most efficient for everyday tasks',
     context: '200k',
   },
   {
-    id: 'claude-haiku-4-5-20251001',
+    id: 'claude-haiku-4-5',
     name: 'Haiku 4.5',
     description: 'Fastest for quick answers',
     context: '200k',
@@ -43,8 +37,8 @@ const DEFAULT_MODELS = [
 
 const EFFORT_LEVELS = ['low', 'medium', 'high', 'max'] as const
 
-const DEFAULT_MODEL = 'claude-sonnet-4-6-20250514'
-const DEFAULT_EFFORT = 'medium'
+const DEFAULT_MODEL = 'claude-opus-4-6'
+const DEFAULT_EFFORT = 'max'
 
 const settingsService = new SettingsService()
 const providerService = new ProviderService()
